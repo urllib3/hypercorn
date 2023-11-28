@@ -42,11 +42,11 @@ class TCPServer:
                 return  # Handshake failed
             alpn_protocol = self.stream.selected_alpn_protocol()
             socket = self.stream.transport_stream.socket
-            tls = True
+            tls = {}
         except AttributeError:  # Not SSL
             alpn_protocol = "http/1.1"
             socket = self.stream.socket
-            tls = False
+            tls = None
 
         try:
             client = parse_socket_addr(socket.family, socket.getpeername())

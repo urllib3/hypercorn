@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from itertools import chain
-from typing import Awaitable, Callable, cast, Optional, Tuple, Type, Union
+from typing import Any, Awaitable, Callable, cast, Optional, Tuple, Type, Union
 
 import h11
 
@@ -84,7 +84,7 @@ class H11Protocol:
         config: Config,
         context: WorkerContext,
         task_group: TaskGroup,
-        tls: bool,
+        tls: Optional[dict[str, Any]],
         client: Optional[Tuple[str, int]],
         server: Optional[Tuple[str, int]],
         send: Callable[[Event], Awaitable[None]],

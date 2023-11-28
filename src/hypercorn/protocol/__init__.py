@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Awaitable, Callable, Optional, Tuple, Union
+from typing import Any, Awaitable, Callable, Optional, Tuple, Union
 
 from .h2 import H2Protocol
 from .h11 import H2CProtocolRequiredError, H2ProtocolAssumedError, H11Protocol
@@ -16,7 +16,7 @@ class ProtocolWrapper:
         config: Config,
         context: WorkerContext,
         task_group: TaskGroup,
-        tls: bool,
+        tls: Optional[dict[str, Any]],
         client: Optional[Tuple[str, int]],
         server: Optional[Tuple[str, int]],
         send: Callable[[Event], Awaitable[None]],

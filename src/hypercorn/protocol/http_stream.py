@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from enum import auto, Enum
 from time import time
-from typing import Awaitable, Callable, Optional, Tuple
+from typing import Any, Awaitable, Callable, Optional, Tuple
 from urllib.parse import unquote
 
 from .events import Body, EndBody, Event, InformationalResponse, Request, Response, StreamClosed
@@ -42,7 +42,7 @@ class HTTPStream:
         config: Config,
         context: WorkerContext,
         task_group: TaskGroup,
-        tls: bool,
+        tls: Optional[dict[str, Any]],
         client: Optional[Tuple[str, int]],
         server: Optional[Tuple[str, int]],
         send: Callable[[Event], Awaitable[None]],
@@ -56,7 +56,7 @@ class HTTPStream:
         self.response: HTTPResponseStartEvent
         self.scope: HTTPScope
         self.send = send
-        self.scheme = "https" if tls else "http"
+        self.scheme = "https" if tls is not None else "http"
         self.server = server
         self.start_time: float
         self.state = ASGIHTTPState.REQUEST

@@ -47,10 +47,10 @@ class TCPServer:
             server = parse_socket_addr(socket.family, socket.getsockname())
             ssl_object = self.writer.get_extra_info("ssl_object")
             if ssl_object is not None:
-                tls = True
+                tls = {}
                 alpn_protocol = ssl_object.selected_alpn_protocol()
             else:
-                tls = False
+                tls = None
                 alpn_protocol = "http/1.1"
 
             async with TaskGroup(self.loop) as task_group:
