@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Awaitable, Callable, Dict, List, Optional, Tuple, Type, Union
+from typing import Any, Awaitable, Callable, Dict, List, Optional, Tuple, Type, Union
 
 import h2
 import h2.connection
@@ -84,7 +84,7 @@ class H2Protocol:
         config: Config,
         context: WorkerContext,
         task_group: TaskGroup,
-        tls: bool,
+        tls: Optional[dict[str, Any]],
         client: Optional[Tuple[str, int]],
         server: Optional[Tuple[str, int]],
         send: Callable[[Event], Awaitable[None]],
