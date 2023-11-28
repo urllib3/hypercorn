@@ -57,6 +57,7 @@ class HTTPStream:
         self.scope: HTTPScope
         self.send = send
         self.scheme = "https" if tls is not None else "http"
+        self.tls = tls
         self.server = server
         self.start_time: float
         self.state = ASGIHTTPState.REQUEST
@@ -93,6 +94,9 @@ class HTTPStream:
 
             if event.http_version in EARLY_HINTS_VERSIONS:
                 self.scope["extensions"]["http.response.early_hint"] = {}
+
+            if self.tls is not None:
+                self.scope["extensions"]["tls"] = self.tls
 
             if valid_server_name(self.config, event):
                 self.app_put = await self.task_group.spawn_app(

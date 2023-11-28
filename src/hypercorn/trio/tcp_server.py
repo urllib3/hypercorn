@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import ssl
 from math import inf
 from typing import Any, Generator, Optional
 
@@ -42,7 +43,13 @@ class TCPServer:
                 return  # Handshake failed
             alpn_protocol = self.stream.selected_alpn_protocol()
             socket = self.stream.transport_stream.socket
-            tls = {}
+
+            tls = {"alpn_protocol": alpn_protocol}
+            client_certificate = self.stream.getpeercert(binary_form=False)
+            if client_certificate:
+                tls["client_cert_name"] = ", ".join(
+                    [f"{part[0][0]}={part[0][1]}" for part in client_certificate["subject"]]
+                )
         except AttributeError:  # Not SSL
             alpn_protocol = "http/1.1"
             socket = self.stream.socket
