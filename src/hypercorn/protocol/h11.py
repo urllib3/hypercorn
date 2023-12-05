@@ -88,6 +88,7 @@ class H11Protocol:
         client: Optional[Tuple[str, int]],
         server: Optional[Tuple[str, int]],
         send: Callable[[Event], Awaitable[None]],
+        transport=None,
     ) -> None:
         self.app = app
         self.can_read = context.event_class()
@@ -102,6 +103,7 @@ class H11Protocol:
         self.tls = tls
         self.stream: Optional[Union[HTTPStream, WSStream]] = None
         self.task_group = task_group
+        self.transport = transport
 
     async def initiate(self) -> None:
         pass
@@ -218,6 +220,7 @@ class H11Protocol:
                 self.server,
                 self.stream_send,
                 STREAM_ID,
+                self.transport,
             )
 
         if self.config.h11_pass_raw_headers:

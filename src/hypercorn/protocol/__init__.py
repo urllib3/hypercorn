@@ -21,6 +21,7 @@ class ProtocolWrapper:
         server: Optional[Tuple[str, int]],
         send: Callable[[Event], Awaitable[None]],
         alpn_protocol: Optional[str] = None,
+        transport=None,
     ) -> None:
         self.app = app
         self.config = config
@@ -31,6 +32,7 @@ class ProtocolWrapper:
         self.server = server
         self.send = send
         self.protocol: Union[H11Protocol, H2Protocol]
+        self.transport = transport
         if alpn_protocol == "h2":
             self.protocol = H2Protocol(
                 self.app,
@@ -41,6 +43,7 @@ class ProtocolWrapper:
                 self.client,
                 self.server,
                 self.send,
+                self.transport,
             )
         else:
             self.protocol = H11Protocol(
@@ -52,6 +55,7 @@ class ProtocolWrapper:
                 self.client,
                 self.server,
                 self.send,
+                self.transport,
             )
 
     async def initiate(self) -> None:

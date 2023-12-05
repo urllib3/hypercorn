@@ -88,6 +88,7 @@ class H2Protocol:
         client: Optional[Tuple[str, int]],
         server: Optional[Tuple[str, int]],
         send: Callable[[Event], Awaitable[None]],
+        transport=None,
     ) -> None:
         self.app = app
         self.client = client
@@ -117,6 +118,7 @@ class H2Protocol:
         self.has_data = self.context.event_class()
         self.priority = priority.PriorityTree()
         self.stream_buffers: Dict[int, StreamBuffer] = {}
+        self.transport = transport
 
     @property
     def idle(self) -> bool:
