@@ -186,6 +186,7 @@ class H2Protocol:
             except h2.exceptions.ProtocolError:
                 await self._flush()
                 await self.send(Closed())
+                raise
             else:
                 await self._handle_events(events)
         elif isinstance(event, Closed):

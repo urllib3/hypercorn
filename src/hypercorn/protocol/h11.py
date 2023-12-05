@@ -160,6 +160,7 @@ class H11Protocol:
                 if self.connection.our_state in {h11.IDLE, h11.SEND_RESPONSE}:
                     await self._send_error_response(400)
                 await self.send(Closed())
+                raise
                 break
             else:
                 if isinstance(event, h11.Request):
