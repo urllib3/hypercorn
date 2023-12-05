@@ -47,6 +47,7 @@ class HTTPStream:
         server: Optional[Tuple[str, int]],
         send: Callable[[Event], Awaitable[None]],
         stream_id: int,
+        transport=None,
     ) -> None:
         self.app = app
         self.client = client
@@ -63,6 +64,7 @@ class HTTPStream:
         self.state = ASGIHTTPState.REQUEST
         self.stream_id = stream_id
         self.task_group = task_group
+        self.transport = transport
 
     @property
     def idle(self) -> bool:
@@ -97,6 +99,9 @@ class HTTPStream:
 
             if self.tls is not None:
                 self.scope["extensions"]["tls"] = self.tls
+
+            if self.transport is not None:
+                self.scope["extensions"]["_transport"] = self.transport
 
             if valid_server_name(self.config, event):
                 self.app_put = await self.task_group.spawn_app(

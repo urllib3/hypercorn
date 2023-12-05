@@ -64,6 +64,7 @@ class TCPServer:
                     server,
                     self.protocol_send,
                     alpn_protocol,
+                    (self.reader, self.writer),
                 )
                 await self.protocol.initiate()
                 await self._start_idle()
