@@ -84,6 +84,7 @@ class Config:
     include_date_header = True
     include_server_header = True
     keep_alive_timeout = 5 * SECONDS
+    keep_alive_max_requests = 1000
     keyfile: Optional[str] = None
     keyfile_password: Optional[str] = None
     logconfig: Optional[str] = None
@@ -91,6 +92,8 @@ class Config:
     logger_class = Logger
     loglevel: str = "INFO"
     max_app_queue_size: int = 10
+    max_requests: Optional[int] = None
+    max_requests_jitter: int = 0
     pid_path: Optional[str] = None
     server_names: List[str] = []
     shutdown_timeout = 60 * SECONDS
