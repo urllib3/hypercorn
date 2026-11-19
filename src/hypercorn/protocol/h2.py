@@ -112,7 +112,7 @@ class H2Protocol:
             },
         )
 
-        self.send = send
+        self._send = send
         self.server = server
         self.tls = tls
         self.streams: Dict[int, Union[HTTPStream, WSStream]] = {}
@@ -142,9 +142,9 @@ class H2Protocol:
             await self.streams[event.stream_id].handle(EndBody(stream_id=event.stream_id))
         self.task_group.spawn(self.send_task)
 
-    async def safe_send(self, ev: Event) -> None:
+    async def send(self, ev: Event) -> None:
         async with self.send_lock:
-            return await self.send(ev)
+            return await self._send(ev)
 
     async def send_task(self) -> None:
         # This should be run in a seperate task to the rest of this
@@ -191,7 +191,7 @@ class H2Protocol:
                 events = self.connection.receive_data(event.data)
             except h2.exceptions.ProtocolError:
                 await self._flush()
-                await self.safe_send(Closed())
+                await self.send(Closed())
                 raise
             else:
                 await self._handle_events(events)
@@ -229,7 +229,7 @@ class H2Protocol:
                 if idle and self.context.terminated.is_set():
                     self.connection.close_connection()
                     await self._flush()
-                await self.safe_send(Updated(idle=idle))
+                await self.send(Updated(idle=idle))
             elif isinstance(event, Request):
                 await self._create_server_push(event.stream_id, event.raw_path, event.headers)
         except (
@@ -252,7 +252,7 @@ class H2Protocol:
                     )
                 else:
                     await self._create_stream(event)
-                    await self.safe_send(Updated(idle=False))
+                    await self.send(Updated(idle=False))
             elif isinstance(event, h2.events.DataReceived):
                 await self.streams[event.stream_id].handle(
                     Body(stream_id=event.stream_id, data=event.data)
@@ -273,13 +273,13 @@ class H2Protocol:
                 if h2.settings.SettingCodes.INITIAL_WINDOW_SIZE in event.changed_settings:
                     await self._window_updated(None)
             elif isinstance(event, h2.events.ConnectionTerminated):
-                await self.safe_send(Closed())
+                await self.send(Closed())
         await self._flush()
 
     async def _flush(self) -> None:
         data = self.connection.data_to_send()
         if data != b"":
-            await self.safe_send(RawData(data=data))
+            await self.send(RawData(data=data))
 
     async def _window_updated(self, stream_id: Optional[int]) -> None:
         if stream_id is None or stream_id == 0:
