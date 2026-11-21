@@ -7,6 +7,7 @@ import h2.connection
 import h2.events
 import h2.exceptions
 import priority
+import trio
 
 from .events import (
     Body,
@@ -96,6 +97,7 @@ class H2Protocol:
         self.config = config
         self.context = context
         self.task_group = task_group
+        self.send_lock = trio.Lock()
 
         self.connection = h2.connection.H2Connection(
             config=h2.config.H2Configuration(client_side=False, header_encoding=None)
@@ -110,7 +112,7 @@ class H2Protocol:
             },
         )
 
-        self.send = send
+        self._send = send
         self.server = server
         self.tls = tls
         self.streams: Dict[int, Union[HTTPStream, WSStream]] = {}
@@ -139,6 +141,10 @@ class H2Protocol:
             await self._create_stream(event)
             await self.streams[event.stream_id].handle(EndBody(stream_id=event.stream_id))
         self.task_group.spawn(self.send_task)
+
+    async def send(self, ev: Event) -> None:
+        async with self.send_lock:
+            return await self._send(ev)
 
     async def send_task(self) -> None:
         # This should be run in a seperate task to the rest of this
